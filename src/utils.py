@@ -11,6 +11,7 @@ from src.exception import CustomException
 from src.logger import logging
 
 from sklearn.metrics import r2_score
+from sklearn.model_selection import GridSearchCV
 
 
 # ----------------------------------------- utility functions ----------------------------------------------
@@ -34,7 +35,7 @@ def save_object(file_path, obj):
 
 
 # model evauation function
-def evaluate_models(X_train, y_train, X_test, y_test, models):
+def evaluate_models(X_train, y_train, X_test, y_test, models, param):
     """
     To evaluate all models
     """
@@ -44,8 +45,17 @@ def evaluate_models(X_train, y_train, X_test, y_test, models):
 
         for i in range(len(list(models))):
             
-            # selecting i'th model instance
+            # selecting i'th model instance and its parameters
             model = list(models.values())[i]
+            para = param[list(models.keys())[i]]
+
+            # finding out best parameters
+            gs = GridSearchCV(model,para,cv=3)
+            gs.fit(X_train,y_train)
+
+            # applying best parameters
+            model.set_params(**gs.best_params_)
+
 
             # model fitting
             model.fit(X_train,y_train)
