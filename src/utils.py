@@ -10,9 +10,12 @@ import dill
 from src.exception import CustomException
 from src.logger import logging
 
+from sklearn.metrics import r2_score
+
 
 # ----------------------------------------- utility functions ----------------------------------------------
 
+# Save object function
 def save_object(file_path, obj):
     """
     Function to save objects/pkl files
@@ -28,3 +31,42 @@ def save_object(file_path, obj):
 
     except Exception as e:
         CustomException(e, sys)
+
+
+# model evauation function
+def evaluate_models(X_train, y_train, X_test, y_test, models):
+    """
+    To evaluate all models
+    """
+
+    try:
+        report = {}
+
+        for i in range(len(list(models))):
+            
+            # selecting i'th model instance
+            model = list(models.values())[i]
+
+            # model fitting
+            model.fit(X_train,y_train)
+
+            # predection on train side
+            y_train_pred = model.predict(X_train)
+
+            # predection on test side
+            y_test_pred = model.predict(X_test)
+
+            # evaluating model r2 score on train side
+            train_model_score = r2_score(y_train, y_train_pred)
+
+            # evaluating model r2 score on test side
+            test_model_score = r2_score(y_test, y_test_pred)
+
+            # creating report dictionary
+            report[list(models.keys())[i]] = test_model_score
+
+        
+        return report
+    
+    except Exception as e:
+        raise CustomException(e,sys)
